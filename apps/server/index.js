@@ -1,26 +1,30 @@
 const express = require('express');
-const {Pool} = require('pg');
 const cors = require('cors');
+const db = require('./db'); // Your DB connection
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool({
-    connectionString: "postgres://postgres:openaudit@123@localhost:5432/open_audit"
-})
+app.use('/auth', require('./routes/authRoutes'));
 
 app.get("/",(req,res)=>{
     res.send("BAckend is working fine");
 });
 
-app.get('/test-db', async (req, res) => {
+app.get('/debug', async (req, res) => {
     try {
-        const result = await pool.query('SELECT NOW()');
-        res.json({ message: "Database Connected!", time: result.rows[0].now });
+        // Ask Postgres: "Who am I?" and "What tables do I have?"
+        const dbName = await db.query('SELECT current_database()');
+        const tables = await db.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public'");
+        
+        res.json({
+            "I_AM_CONNECTED_TO": dbName.rows[0].current_database,
+            "TABLES_I_CAN_SEE": tables.rows.map(r => r.tablename)
+        });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Database Connection Failed" });
+        res.status(500).json({ error: err.message });
     }
 });
 

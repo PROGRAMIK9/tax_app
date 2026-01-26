@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '', role:'', full_name: '' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -20,7 +20,7 @@ const Login = () => {
 
     try {
       // 3. Send data to Backend (Port 5000)
-      const res = await api.post('/auth/login', formData);
+      const res = await api.post('/auth/register', formData);
 
       // 4. Success!
       toast.success(res.data.message); // Show pop-up
@@ -34,7 +34,7 @@ const Login = () => {
 
     } catch (err) {
       // 7. Handle Error
-      const errorMsg = err.response?.data?.error || "Login Failed";
+      const errorMsg = err.response?.data?.error || "Register Failed";
       toast.error(errorMsg);
     } finally {
       setLoading(false); // Re-enable button
@@ -44,7 +44,7 @@ const Login = () => {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Tax Audit Login</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Tax Audit Registration</h2>
         
         <form onSubmit={handleSubmit}>
           <div style={styles.inputGroup}>
@@ -71,11 +71,35 @@ const Login = () => {
             />
           </div>
 
+          <div style={styles.inputGroup}>
+            <label>Full Name</label>
+            <input 
+              type="text" 
+              name="full_name" 
+              value={formData.full_name} 
+              onChange={handleChange} 
+              required 
+              style={styles.input}
+            />
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label>Role</label>
+            <input 
+              type="text"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                placeholder="user or admin"
+                style={styles.input}
+            />
+          </div>
+
           <button type="submit" style={styles.button} disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Registering...' : 'Register'}
           </button>
 
-          <h3>New To Open Audit? <a href="/register">Register Here</a></h3>
+            <h3>Have an account? <a href="/register">Login Here</a></h3>
         </form>
       </div>
     </div>

@@ -1,0 +1,51 @@
+# --- Security & Secrets ---
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets.json
+config/database.yml
+
+# --- User Data & Tax Documents ---
+# Never commit actual user financial data
+/data/
+/uploads/
+/receipts/
+*.pdf
+*.csv
+*.txf
+*.ofx
+*.qbo
+*.sqlite
+*.sqlite3
+*.db
+export/
+reports/
+
+# --- Node.js ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Dependency directories
+jspm_packages/
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- IDE & Editors ---
+.idea/
+.vscode/
+*.swp
+*.swo

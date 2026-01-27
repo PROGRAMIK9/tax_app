@@ -30,7 +30,7 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(res.data.user));
 
       // 6. Redirect to Dashboard
-      navigate('/'); 
+      navigate('/dashboard'); 
 
     } catch (err) {
       // 7. Handle Error

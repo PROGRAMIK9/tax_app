@@ -27,7 +27,8 @@ exports.register = async (req, res) => {
             'INSERT INTO users (email, password_hash, full_name, role) VALUES ($1, $2, $3, $4) RETURNING id, email, full_name, role',
             [email, hashedPassword, full_name, role || 'user']
         );
-
+        console.log("LOGIN DEBUG: User found in DB:", user); 
+        console.log("LOGIN DEBUG: ID being put into Token:", user.id);
         // 5. Success Response
         res.status(201).json({ 
             message: "User Registered Successfully!", 
@@ -48,6 +49,8 @@ exports.login = async (req, res) => {
             return res.status(400).json({error: "Invalid Credentials"});
         }
         const user = userCheck.rows[0];
+        console.log("LOGIN DEBUG: User found in DB:", user); 
+        console.log("LOGIN DEBUG: ID being put into Token:", user.id);
         const isMatch = await bcrypt.compare(password,user.password_hash);
         if(!isMatch){
             return res.status(400).json({error: "Invalid Credentials"});

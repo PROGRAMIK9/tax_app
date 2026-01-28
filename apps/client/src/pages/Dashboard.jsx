@@ -45,10 +45,16 @@ const Dashboard = () => {
         console.log("Sending to server:", formData);
         
         // Simulating a delay so you can see the loading state
-        setTimeout(() => {
-            toast.success("Calculation Sent! (Logic coming soon)");
-            setLoading(false);
-        }, 1000);
+        api.post('/tax/calculate', formData)
+            .then((res) => {
+                toast.success("Calculation Complete!" + res.data.recommendation);
+                console.log("Tax Calculation Result:", res.data.message,res.data.recommendation);
+                setLoading(false);
+            })
+            .catch((err) => {
+                toast.error("Error calculating tax");
+                setLoading(false);
+            });
     };
 
     const handleLogout = () => {

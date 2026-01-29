@@ -16,6 +16,8 @@ const Dashboard = () => {
         rentPaid: ''        // For HRA Calculation
     });
 
+    const [result, setResult] = useState(null);
+
     const [loading, setLoading] = useState(false);
 
     // --- FETCH USER ON LOAD ---
@@ -49,6 +51,7 @@ const Dashboard = () => {
             .then((res) => {
                 toast.success("Calculation Complete!" + res.data.recommendation);
                 console.log("Tax Calculation Result:", res.data.message,res.data.recommendation);
+                setResult(res.data);
                 setLoading(false);
             })
             .catch((err) => {
@@ -139,6 +142,43 @@ const Dashboard = () => {
                             {loading ? 'Calculating...' : 'Calculate Tax'}
                         </button>
                     </form>
+                    {result && (
+                        <div style={styles.resultBox}>
+                            <h4 style={{marginTop: 0, textAlign: 'center'}}>📊 Analysis Result</h4>
+                            
+                            <div style={styles.comparisonGrid}>
+                                {/* Old Regime Box */}
+                                <div style={styles.regimeBox}>
+                                    <strong>Old Regime</strong>
+                                    <div style={{fontSize: '1.2rem', color: '#555'}}>
+                                        ₹{result.oldRegime.tax.toLocaleString()}
+                                    </div>
+                                    <small>Taxable: ₹{result.oldRegime.taxableIncome.toLocaleString()}</small>
+                                </div>
+
+                                {/* New Regime Box */}
+                                <div style={styles.regimeBox}>
+                                    <strong>New Regime</strong>
+                                    <div style={{fontSize: '1.2rem', color: '#555'}}>
+                                        ₹{result.newRegime.tax.toLocaleString()}
+                                    </div>
+                                    <small>Taxable: ₹{result.newRegime.taxableIncome.toLocaleString()}</small>
+                                </div>
+                            </div>
+
+                            {/* The Winner Banner */}
+                            <div style={{
+                                ...styles.recommendation, 
+                                backgroundColor: result.recommendation === "Old Regime" ? '#e6fffa' : '#ebf8ff',
+                                color: result.recommendation === "Old Regime" ? '#2c7a7b' : '#2b6cb0'
+                            }}>
+                                💡 We recommend: <strong>{result.recommendation}</strong>
+                                {result.savings > 0 && (
+                                    <div>You will save <strong>₹{result.savings.toLocaleString()}</strong>!</div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* RIGHT COLUMN: History (Placeholder) */}
@@ -173,7 +213,11 @@ const styles = {
     
     calculateBtn: { width: '100%', padding: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', fontSize: '1.1rem', cursor: 'pointer', fontWeight: 'bold' },
     
-    emptyState: { padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '5px', textAlign: 'center', color: '#aaa' }
+    emptyState: { padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '5px', textAlign: 'center', color: '#aaa' },
+    resultBox: { marginTop: '20px', padding: '15px', borderTop: '2px dashed #ddd', animation: 'fadeIn 0.5s' },
+    comparisonGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' },
+    regimeBox: { backgroundColor: '#f8f9fa', padding: '10px', borderRadius: '5px', textAlign: 'center', border: '1px solid #eee' },
+    recommendation: { marginTop: '15px', padding: '10px', borderRadius: '5px', textAlign: 'center', border: '1px solid currentColor' }
 };
 
 export default Dashboard;

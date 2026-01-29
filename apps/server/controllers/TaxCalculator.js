@@ -1,3 +1,4 @@
+const db = require('../db');
 exports.calculateTax = async(req,res) => {
     console.log(req.body);
     const { annualIncome = 0, investments = 0, otherDeductions = 0, rentPaid = 0 } = req.body;
@@ -80,12 +81,12 @@ exports.calculateTax = async(req,res) => {
         // We save the one that is LOWER (Better for the user)
         const finalTax = Math.min(oldTax, newTax);
         
-        // const newRecord = await db.query(
-            // `INSERT INTO tax_records (user_id, financial_year, annual_income, investments_80c, rent_paid, calculated_tax) 
-            //  VALUES ($1, '2025-2026', $2, $3, $4, $5) RETURNING *`,
-            // [req.user.id, income, inv80c, rent, finalTax]
-        // );
-
+        const newRecord = await db.query(
+            `INSERT INTO transactions (user_id, financial_year, annualIncome, investments_80c, rent_paid, calculated_old_tax, calculated_new_tax, final_tax) 
+             VALUES ($1, '2025-2026', $2, $3, $4, $5,$6,$7) RETURNING *`,
+            [req.user.user.id, income, inv80c, rent, oldTax,newTax, finalTax]
+        );
+        console.log("Tax record saved:", newRecord.rows[0]);
         // --- 5. SEND RESULT ---
         res.json({
             message: "Calculation Complete",

@@ -4,11 +4,9 @@ import api from '../api/axios';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
-    // 1. User Profile State
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
 
-    // 2. Tax Form State (The inputs)
     const [formData, setFormData] = useState({
         annualIncome: '',
         investments: '',    // Section 80C (PPF, LIC, etc.)
@@ -17,23 +15,26 @@ const Dashboard = () => {
     });
 
     const [result, setResult] = useState(null);
-
+    const [history, setHistory] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // --- FETCH USER ON LOAD ---
     useEffect(() => {
         api.get('/auth/me')
             .then((res) => {
-                // We handle the nested 'user' object here just in case, or direct access
-                // Depending on your fix, it might be res.data or res.data.user
                 setUser(res.data);
             })
             .catch(() => {
                 navigate('/login');
             });
+        api.get('/tax/history')
+            .then((res) => {
+                setHistory(res.data.history);
+            })
+            .catch((err) => {
+                console.error("Error fetching history:", err);
+            });
     }, []);
 
-    // --- HANDLE INPUT CHANGES ---
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -42,17 +43,14 @@ const Dashboard = () => {
     const handleCalculate = async (e) => {
         e.preventDefault();
         setLoading(true);
-        
-        // We will connect this to the backend in the next step!
-        console.log("Sending to server:", formData);
-        
-        // Simulating a delay so you can see the loading state
         api.post('/tax/calculate', formData)
             .then((res) => {
                 toast.success("Calculation Complete!" + res.data.recommendation);
-                console.log("Tax Calculation Result:", res.data.message,res.data.recommendation);
                 setResult(res.data);
                 setLoading(false);
+                if(res.data.savedRecord) {
+                    setHistory([res.data.savedRecord, ...history]); 
+                }
             })
             .catch((err) => {
                 toast.error("Error calculating tax");
@@ -181,13 +179,39 @@ const Dashboard = () => {
                     )}
                 </div>
 
-                {/* RIGHT COLUMN: History (Placeholder) */}
+                {/* RIGHT COLUMN: History */}
                 <div style={styles.card}>
                     <h3 style={styles.cardTitle}>📜 Past Calculations</h3>
-                    <p style={{color: '#777'}}>Your recent tax records will appear here.</p>
-                    <div style={styles.emptyState}>
-                        No records found.
-                    </div>
+                    
+                    {history?.length === 0 ? (
+                        <div style={styles.emptyState}>No records found yet.</div>
+                    ) : (
+                        <div style={{maxHeight: '400px', overflowY: 'auto'}}>
+                            {history.map((record) => (
+                                <div key={record.id} style={styles.historyItem}>
+                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                        <strong>{new Date(record.created_at).toLocaleDateString()}</strong>
+                                        <span style={{
+                                            color: record.recommendation === 'Old Regime' ? '#2c7a7b' : '#2b6cb0',
+                                            fontWeight: 'bold',
+                                            fontSize: '0.85rem',
+                                            backgroundColor: record.recommendation === 'Old Regime' ? '#e6fffa' : '#ebf8ff',
+                                            padding: '2px 8px',
+                                            borderRadius: '10px'
+                                        }}>
+                                            {record?.recommendation}
+                                        </span>
+                                    </div>
+                                    <div style={{fontSize: '0.9rem', color: '#666', marginTop: '5px'}}>
+                                        Income: ₹{Number(record?.annualincome).toLocaleString()}
+                                    </div>
+                                    <div style={{fontSize: '0.8rem', color: '#888'}}>
+                                        Savings: ₹{Number(record?.savings).toLocaleString()}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
             </div>
@@ -217,7 +241,8 @@ const styles = {
     resultBox: { marginTop: '20px', padding: '15px', borderTop: '2px dashed #ddd', animation: 'fadeIn 0.5s' },
     comparisonGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' },
     regimeBox: { backgroundColor: '#f8f9fa', padding: '10px', borderRadius: '5px', textAlign: 'center', border: '1px solid #eee' },
-    recommendation: { marginTop: '15px', padding: '10px', borderRadius: '5px', textAlign: 'center', border: '1px solid currentColor' }
+    recommendation: { marginTop: '15px', padding: '10px', borderRadius: '5px', textAlign: 'center', border: '1px solid currentColor' },
+    historyItem: { borderBottom: '1px solid #eee', padding: '10px 0' }
 };
 
 export default Dashboard;

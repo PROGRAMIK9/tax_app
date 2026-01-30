@@ -17,7 +17,6 @@ exports.calculateTax = async(req,res) => {
         
         // Assumption: Basic Salary is 50% of Gross Income
         const basicSalary = income * 0.5;
-        // Assumption: HRA Received is 40% of Basic (Non-Metro standard)
         const hraReceived = basicSalary * 0.4;
 
         // HRA Exemption Logic (Min of 3 rules):
@@ -80,13 +79,12 @@ exports.calculateTax = async(req,res) => {
         // --- 4. SAVE TO DATABASE ---
         // We save the one that is LOWER (Better for the user)
         const finalTax = Math.min(oldTax, newTax);
-        
+        const savings = Math.abs(oldTax - newTax);
         const newRecord = await db.query(
-            `INSERT INTO transactions (user_id, financial_year, annualIncome, investments_80c, rent_paid, calculated_old_tax, calculated_new_tax, final_tax) 
-             VALUES ($1, '2025-2026', $2, $3, $4, $5,$6,$7) RETURNING *`,
-            [req.user.user.id, income, inv80c, rent, oldTax,newTax, finalTax]
+            `INSERT INTO transactions (user_id, financial_year, annualIncome, investments_80c, rent_paid, calculated_old_tax, calculated_new_tax, final_tax, savings) 
+             VALUES ($1, '2025-2026', $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+            [req.user.user.id, income, inv80c, rent, oldTax, newTax, finalTax,savings]
         );
-        console.log("Tax record saved:", newRecord.rows[0]);
         // --- 5. SEND RESULT ---
         res.json({
             message: "Calculation Complete",
@@ -99,11 +97,23 @@ exports.calculateTax = async(req,res) => {
                 tax: newTax
             },
             recommendation: oldTax < newTax ? "Old Regime" : "New Regime",
-            // savedRecord: newRecord.rows[0]
+            savedRecord: newRecord.rows[0]
         });
 
     } catch (err) {
-        console.error(err.message);
         res.status(500).send("Calculation Error");
+    }
+};
+
+exports.getHistory = async(req,res)=>{
+    try{
+        const user = req.user.user;
+        const result = await db.query("SELECT * FROM transactions WHERE user_id=$1 ORDER BY created_at DESC", [user.id]);
+        res.json({
+            history: result.rows
+        });
+    }catch(err){
+        console.error(err.message);
+        res.status(500).send("Error retrieving history");
     }
 };

@@ -11,8 +11,15 @@ const Dashboard = () => {
         annualIncome: '',
         investments: '',    // Section 80C (PPF, LIC, etc.)
         otherDeductions: '', // Section 80D (Health Insurance)
-        rentPaid: ''        // For HRA Calculation
+        rentPaid: '',        // For HRA Calculation
+        // ADVANCED FIELDS (Initially Hidden)
+        medical_80D : '',
+        nps_80CCD : '',
+        education_80E : '',
+        professional_tax :'',
+        hra_received :''
     });
+    const [showAdvanced, setShowAdvance] = useState(false);
 
     const [result, setResult] = useState(null);
     const [history, setHistory] = useState(null);
@@ -135,6 +142,87 @@ const Dashboard = () => {
                                 style={styles.input}
                             />
                         </div>
+                        <div style={{marginBottom: '20px', textAlign: 'center'}}>
+                            <button 
+                                type="button" 
+                                onClick={() => setShowAdvance(!showAdvanced)}
+                                style={{
+                                    background: 'none', 
+                                    border: 'none', 
+                                    color: '#007bff', 
+                                    cursor: 'pointer', 
+                                    textDecoration: 'underline',
+                                    fontSize: '0.9rem'
+                                }}
+                            >
+                                {showAdvanced ? "Hide Advanced Options 🔼" : "Show Advanced Options 🔽"}
+                            </button>
+                        </div>
+
+                        {/* --- HIDDEN FIELDS --- */}
+                        {showAdvanced && (
+                            <div style={{
+                                backgroundColor: '#f8f9fa', 
+                                padding: '15px', 
+                                borderRadius: '8px', 
+                                marginBottom: '20px',
+                                border: '1px solid #e9ecef'
+                            }}>
+                                <h4 style={{marginTop: 0, color: '#444'}}>🧪 Granular Deductions</h4>
+                                
+                                <div style={styles.inputGroup}>
+                                    <label>Medical Insurance (80D) ₹</label>
+                                    <small style={{color: '#666'}}>Self + Parents</small>
+                                    <input 
+                                        type="number" 
+                                        name="medical_80D" 
+                                        placeholder="e.g. 25000" 
+                                        value={formData.medical_80D} 
+                                        onChange={handleChange} 
+                                        style={styles.input}
+                                    />
+                                </div>
+
+                                <div style={styles.inputGroup}>
+                                    <label>NPS Contribution (80CCD 1B) ₹</label>
+                                    <small style={{color: '#666'}}>Extra 50k deduction</small>
+                                    <input 
+                                        type="number" 
+                                        name="nps_80CCD" 
+                                        placeholder="e.g. 50000" 
+                                        value={formData.nps_80CCD} 
+                                        onChange={handleChange} 
+                                        style={styles.input}
+                                    />
+                                </div>
+
+                                <div style={styles.inputGroup}>
+                                    <label>Education Loan Interest (80E) ₹</label>
+                                    <small style={{color: '#666'}}>Unlimited deduction on interest</small>
+                                    <input 
+                                        type="number" 
+                                        name="education_80E" 
+                                        placeholder="e.g. 12000" 
+                                        value={formData.education_80E} 
+                                        onChange={handleChange} 
+                                        style={styles.input}
+                                    />
+                                </div>
+                                
+                                <div style={styles.inputGroup}>
+                                    <label>Professional Tax ₹</label>
+                                    <small style={{color: '#666'}}>Usually ₹200/month (₹2400)</small>
+                                    <input 
+                                        type="number" 
+                                        name="professional_tax" 
+                                        placeholder="e.g. 2400" 
+                                        value={formData.professional_tax} 
+                                        onChange={handleChange} 
+                                        style={styles.input}
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         <button type="submit" style={styles.calculateBtn} disabled={loading}>
                             {loading ? 'Calculating...' : 'Calculate Tax'}
@@ -187,7 +275,7 @@ const Dashboard = () => {
                         <div style={styles.emptyState}>No records found yet.</div>
                     ) : (
                         <div style={{maxHeight: '400px', overflowY: 'auto'}}>
-                            {history.map((record) => (
+                            {history?.map((record) => (
                                 <div key={record.id} style={styles.historyItem}>
                                     <div style={{display: 'flex', justifyContent: 'space-between'}}>
                                         <strong>{new Date(record.created_at).toLocaleDateString()}</strong>

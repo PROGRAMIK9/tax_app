@@ -99,7 +99,7 @@ const Login = () => {
             {loading ? 'Registering...' : 'Register'}
           </button>
 
-            <h3>Have an account? <a href="/register">Login Here</a></h3>
+            <h3>Have an account? <a href="/login">Login Here</a></h3>
         </form>
       </div>
     </div>

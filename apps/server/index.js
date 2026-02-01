@@ -1,12 +1,19 @@
+const dotenv = require('dotenv');
+dotenv.config();
 const express = require('express');
 const cors = require('cors');
 const db = require('./db'); // Your DB connection
 const taxRoutes = require('./routes/taxRoutes');
 const app = express();
-const dotenv = require('dotenv');
-dotenv.config();
 
-app.use(cors());
+
+app.use(cors({
+    origin: [
+        "http://localhost:5173",          // Allows Local Frontend
+        "https://openaudit.vercel.app"    // Allows Cloud Frontend
+    ],
+    credentials: true
+}));
 app.use(express.json());
 
 app.use('/auth', require('./routes/authRoutes'));

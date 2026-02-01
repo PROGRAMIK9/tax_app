@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // SECRET KEY (In production, put this in .env)
-const JWT_SECRET = "temp_secret_key_123"; 
+const JWT_SECRET = process.env.JWT_SECRET; 
 
 exports.register = async (req, res) => {
     // 1. Destructure the input (What the user sent us)

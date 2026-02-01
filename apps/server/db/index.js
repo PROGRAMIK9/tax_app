@@ -1,11 +1,8 @@
 const { Pool } = require('pg');
-
+const isProduction = process.env.NODE_ENV === 'production';
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'open_audit',
-    password: 'openaudit@123',
-    port: 5433,
+    connectionString: process.env.DATABASE_URL,
+    ssl: isProduction ? { rejectUnauthorized: false } : false
 });
 
 module.exports = {

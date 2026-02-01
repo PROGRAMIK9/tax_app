@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {jsPDF} from 'jspdf';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 
@@ -69,6 +70,71 @@ const Dashboard = () => {
         localStorage.removeItem('token');
         navigate('/login');    
     }
+    const downloadPDF = () => {
+        if (!result) return;
+
+        const doc = new jsPDF();
+        
+        // --- HEADER ---
+        doc.setFontSize(20);
+        doc.setTextColor(40, 167, 69); // Green color
+        doc.text("OpenAudit Tax Report IN", 20, 20);
+        
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30);
+        doc.text(`User: ${user.full_name}`, 20, 36);
+
+        // --- LINE ---
+        doc.setLineWidth(0.5);
+        doc.line(20, 45, 190, 45);
+
+        // --- INPUTS SUMMARY ---
+        doc.setFontSize(14);
+        doc.text("Income Details", 20, 55);
+        
+        doc.setFontSize(10);
+        doc.text(`Annual Income: Rs. ${Number(formData.annualIncome).toLocaleString()}`, 20, 65);
+        doc.text(`Investments (80C): Rs. ${Number(formData.investments || 0).toLocaleString()}`, 20, 71);
+        doc.text(`Rent Paid: Rs. ${Number(formData.rentPaid || 0).toLocaleString()}`, 20, 77);
+        doc.text(`Medical (80D): Rs. ${Number(formData.medical_80D || 0).toLocaleString()}`, 20, 83);
+        doc.text(`NPS (80CCD): Rs. ${Number(formData.nps_80CCD || 0).toLocaleString()}`, 20, 89);
+
+        // --- RESULT COMPARISON ---
+        doc.setFontSize(14);
+        doc.text("Tax Calculation Results", 110, 55);
+
+        // Old Regime
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Old Regime", 110, 65);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Taxable Income: Rs. ${Number(result.oldRegime.taxableIncome).toLocaleString()}`, 110, 71);
+        doc.text(`Tax Payable: Rs. ${Number(result.oldRegime.tax).toLocaleString()}`, 110, 77);
+
+        // New Regime
+        doc.setTextColor(100, 100, 100);
+        doc.text("New Regime", 110, 90);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Taxable Income: Rs. ${Number(result.newRegime.taxableIncome).toLocaleString()}`, 110, 96);
+        doc.text(`Tax Payable: Rs. ${Number(result.newRegime.tax).toLocaleString()}`, 110, 102);
+
+        // --- WINNER BOX ---
+        doc.setDrawColor(40, 167, 69); // Green border
+        doc.rect(20, 120, 170, 30); // Draw box
+        
+        doc.setFontSize(16);
+        doc.setTextColor(40, 167, 69);
+        doc.text(`Recommendation: ${result.recommendation}`, 105, 135, { align: "center" });
+        
+        if (result.savings > 0) {
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`You save Rs. ${Number(result.savings).toLocaleString()}!`, 105, 143, { align: "center" });
+        }
+
+        doc.save("Tax_Report.pdf");
+    };
 
     if (!user) return <div style={styles.loading}>Loading your Tax Profile...</div>;
 
@@ -262,6 +328,21 @@ const Dashboard = () => {
                                 {result.savings > 0 && (
                                     <div>You will save <strong>₹{result.savings.toLocaleString()}</strong>!</div>
                                 )}
+                                <button 
+                                    onClick={downloadPDF}
+                                    style={{
+                                        marginTop: '15px',
+                                        width: '100%',
+                                        padding: '10px',
+                                        backgroundColor: '#333',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '5px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                📥 Download PDF Report
+                                </button>
                             </div>
                         </div>
                     )}

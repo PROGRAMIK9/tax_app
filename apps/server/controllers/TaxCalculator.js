@@ -83,7 +83,7 @@ exports.calculateTax = async(req,res) => {
         const newRecord = await db.query(
             `INSERT INTO transactions (user_id, financial_year, annualIncome, investments_80c, rent_paid, calculated_old_tax, calculated_new_tax, final_tax, savings) 
              VALUES ($1, '2025-2026', $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-            [req.user.user.id, income, inv80c, rent, oldTax, newTax, finalTax,savings]
+            [req.user.id, income, inv80c, rent, oldTax, newTax, finalTax,savings]
         );
         // --- 5. SEND RESULT ---
         res.json({
@@ -107,7 +107,7 @@ exports.calculateTax = async(req,res) => {
 
 exports.getHistory = async(req,res)=>{
     try{
-        const user = req.user.user;
+        const user = req.user;
         const result = await db.query("SELECT * FROM transactions WHERE user_id=$1 ORDER BY created_at DESC", [user.id]);
         res.json({
             history: result.rows

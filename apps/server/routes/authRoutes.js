@@ -18,11 +18,11 @@ router.get('/me', authMiddleware, async (req, res) => {
         // ------------------------------
 
         // Only run the query if we have an ID
-        if (!req.user || !req.user.user.id) {
+        if (!req.user || !req.user.id) {
              return res.status(400).json({ error: "Token is missing ID" });
         }
 
-        const result = await db.query('SELECT id, full_name, email, role FROM users WHERE id = $1', [req.user.user.id]);
+        const result = await db.query('SELECT id, full_name, email, role FROM users WHERE id = $1', [req.user.id]);
         
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "User not found" });

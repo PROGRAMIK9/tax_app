@@ -3,6 +3,9 @@ const cors = require('cors');
 const db = require('./db'); // Your DB connection
 const taxRoutes = require('./routes/taxRoutes');
 const app = express();
+const dotenv = require('dotenv');
+dotenv.config();
+
 app.use(cors());
 app.use(express.json());
 
@@ -29,6 +32,6 @@ app.get('/debug', async (req, res) => {
 });
 
 // Start Server
-app.listen(5000, () => {
-    console.log('Server running on port 5000');
+app.listen(process.env.PORT || 5000, () => {
+    console.log('Server running on port ' + (process.env.PORT || 5000));
 });

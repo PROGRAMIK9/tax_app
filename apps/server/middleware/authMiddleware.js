@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = "temp_secret_key_123";
+const JWT_SECRET = process.env.JWT_SECRET||'supersecretkeyforjwt';
 module.exports = async function(req,res,next){
     const token = req.header('Authorization');
     if(!token){

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {jsPDF} from 'jspdf';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
-
+import FileUpload from '../components/FileUpload'
 const Dashboard = () => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
@@ -355,7 +355,7 @@ const Dashboard = () => {
                     {history?.length === 0 ? (
                         <div style={styles.emptyState}>No records found yet.</div>
                     ) : (
-                        <div style={{maxHeight: '400px', overflowY: 'auto'}}>
+                        <div style={{maxHeight: '200px', overflowY: 'auto', marginBottom: '30px'}}>
                             {history?.map((record) => (
                                 <div key={record.id} style={styles.historyItem}>
                                     <div style={{display: 'flex', justifyContent: 'space-between'}}>
@@ -381,6 +381,7 @@ const Dashboard = () => {
                             ))}
                         </div>
                     )}
+                    <div style={{padding: '10px 0', marginLeft:'5%'}}><FileUpload /></div>
                 </div>
 
             </div>

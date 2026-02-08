@@ -34,6 +34,14 @@ const uploadDocument = async (req, res) => {
 
     } catch (err) {
         console.error("❌ Upload Error:", err.message);
+
+        // Check if it's a Cloudinary error about encryption
+        if (err.message.includes("encrypted") || err.message.includes("password")) {
+            return res.status(400).json({ 
+                msg: "Upload Failed: This file is password protected. Please unlock it (Print to PDF) and try again." 
+            });
+        }
+
         res.status(500).json({ msg: "Server Error during upload" });
     }
 };

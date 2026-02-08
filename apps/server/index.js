@@ -5,7 +5,7 @@ const cors = require('cors');
 const db = require('./db'); // Your DB connection
 const taxRoutes = require('./routes/taxRoutes');
 const app = express();
-
+const documentRoutes = require('./routes/documentRoutes');
 
 app.use(cors({
     origin: [
@@ -18,6 +18,7 @@ app.use(express.json());
 
 app.use('/auth', require('./routes/authRoutes'));
 app.use('/tax', taxRoutes);
+app.use('/documents', documentRoutes);
 app.get("/",(req,res)=>{
     res.send("BAckend is working fine");
 });

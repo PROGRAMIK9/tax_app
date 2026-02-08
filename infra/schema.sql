@@ -1,4 +1,4 @@
-CREATE TABLE transactions(
+CREATE TABLE IF NOT EXISTS transactions(
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     financial_year VARCHAR(20) DEFAULT '2025-2026',
@@ -26,4 +26,14 @@ CREATE TABLE transactions(
     recommendation VARCHAR(255),
     --creation
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE documents (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    file_url TEXT NOT NULL,
+    public_id TEXT NOT NULL,
+    document_type VARCHAR(50) NOT NULL, -- e.g., 'RENT_RECEIPT', 'MEDICAL_BILL'
+    status VARCHAR(20) DEFAULT 'PENDING', -- 'PENDING', 'APPROVED', 'REJECTED'
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

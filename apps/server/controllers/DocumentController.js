@@ -1,51 +1,64 @@
 const db = require('../db');
+const { analyzeDocument } = require('../services/aiservice'); // 👈 Import this!
 
-// --- UPLOAD DOCUMENT ---
 const uploadDocument = async (req, res) => {
     try {
-        // 1. Check if file exists (Multer should have handled this)
-        if (!req.file) {
-            return res.status(400).json({ msg: "No file uploaded" });
+        if (!req.file) return res.status(400).json({ msg: "No file uploaded" });
+
+        const userId = req.user.id;
+        const fileUrl = req.file.path;      
+        const publicId = req.file.filename; 
+        const mimeType = req.file.mimetype; // e.g., 'image/jpeg' or 'application/pdf'
+
+        // 1. Initial Save (Status: PENDING)
+        // We save it FIRST so if AI fails, we still have the file.
+        const insertQuery = `
+            INSERT INTO documents (user_id, file_url, public_id, document_type, status)
+            VALUES ($1, $2, $3, $4, 'PENDING') RETURNING *;
+        `;
+        const newDoc = await db.query(insertQuery, [userId, fileUrl, publicId, req.body.document_type || 'RECEIPT']);
+        const docId = newDoc.rows[0].id;
+
+        // 2. Trigger AI Analysis (Async - don't make the user wait too long?)
+        // actually, for now, let's await it so we see the result immediately.
+        console.log("⏳ Waiting for AI...");
+        const aiData = await analyzeDocument(fileUrl, mimeType);
+
+        if (aiData) {
+            // 3. Update Database with AI Findings
+            const updateQuery = `
+                UPDATE documents 
+                SET extracted_amount = $1, 
+                    extracted_date = $2, 
+                    extracted_vendor = $3, 
+                    category = $4,
+                    confidence_score = $5,
+                    audit_notes = $6,
+                    status = 'ANALYZED'
+                WHERE id = $7 RETURNING *;
+            `;
+            
+            const updatedDoc = await db.query(updateQuery, [
+                aiData.amount, 
+                aiData.date, 
+                aiData.vendor, 
+                aiData.category,
+                aiData.confidence_score, 
+                aiData.audit_notes,
+                docId
+            ]);
+
+            return res.json({ msg: "Upload & Audit Complete", document: updatedDoc.rows[0] });
         }
 
-        const { document_type } = req.body;
-        const userId = req.user.id; // From authMiddleware
-
-        // 2. Extract Cloudinary Data
-        // Multer-Storage-Cloudinary puts the file info in req.file
-        const fileUrl = req.file.path;      // The HTTPS link
-        const publicId = req.file.filename; // The ID for deletion
-
-        console.log("📂 File Uploaded to Cloudinary:", fileUrl);
-
-        // 3. Save Metadata to Database
-        const query = `
-            INSERT INTO documents (user_id, file_url, public_id, document_type)
-            VALUES ($1, $2, $3, $4)
-            RETURNING *;
-        `;
-
-        const newDoc = await db.query(query, [userId, fileUrl, publicId, document_type]);
-
-        res.json({
-            msg: "Upload Successful",
-            document: newDoc.rows[0]
-        });
+        // If AI failed, just return the original upload
+        res.json({ msg: "Upload Successful (AI Pending)", document: newDoc.rows[0] });
 
     } catch (err) {
         console.error("❌ Upload Error:", err.message);
-
-        // Check if it's a Cloudinary error about encryption
-        if (err.message.includes("encrypted") || err.message.includes("password")) {
-            return res.status(400).json({ 
-                msg: "Upload Failed: This file is password protected. Please unlock it (Print to PDF) and try again." 
-            });
-        }
-
-        res.status(500).json({ msg: "Server Error during upload" });
+        res.status(500).json({ msg: "Server Error" });
     }
 };
-
 // --- GET MY DOCUMENTS ---
 const getMyDocuments = async (req, res) => {
     try {

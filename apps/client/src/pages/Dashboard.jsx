@@ -144,6 +144,7 @@ const Dashboard = () => {
             <header style={styles.header}>
                 <h2>OpenAudit 🇮🇳</h2>
                 <div style={styles.userInfo}>
+                    <a href ="/files" style={styles.link}>Files</a>
                     <span>Welcome, <strong>{user.full_name || "User"}</strong></span>
                     <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
                 </div>
@@ -395,6 +396,7 @@ const styles = {
     loading: { textAlign: 'center', marginTop: '50px', fontSize: '1.2rem', color: '#555' },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: '#fff', borderBottom: '1px solid #ddd' },
     userInfo: { display: 'flex', gap: '15px', alignItems: 'center' },
+    link:{ color: '#007bff', textDecoration: 'none', fontWeight: 'bold' },
     logoutBtn: { backgroundColor: '#ff4d4d', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '5px', cursor: 'pointer' },
     
     grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', padding: '2rem', maxWidth: '1200px', margin: '0 auto' },

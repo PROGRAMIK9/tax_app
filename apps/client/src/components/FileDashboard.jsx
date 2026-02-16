@@ -79,114 +79,136 @@ const FiledDashboard = () => {
             alert("Download Failed! " + err.message);
         }
     };
+
+    const deleteDocument = async (docId) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this document? This action cannot be undone.");
+        if (!confirmDelete) return;
+        try{
+            const result = await api.delete(`/documents/${docId}`);
+            // Remove the deleted document from the local state to update the UI
+            setDocs(docs.filter(doc => doc.id !== docId));
+            alert("Document deleted successfully.");
+        }catch(err){
+            alert("Failed to delete document. " + err.message);
+        }
+    }
    
     return (
         <div>
             <h2>My Documents</h2>
+            <a href ="/">Back to dashboard</a>
             {/* 5. The Map Loop 🗺️ */}
             {/* We take the 'docs' array and convert each item into a Table Row <tr> */}
-            {docs?.map((doc) => (
-                <div key={doc.id} className="doc-card">
-                    <th>Audit Flags</th>
-                        <td>
-                        {/* CHECK: Does the array exist AND have items? */}
-                        {doc?.audit_flags && doc?.audit_flags.length > 0 ? (
-                            
-                            /* If YES: Loop through them and show red text */
-                            <div style={{ color: '#d32f2f' }}>
-                                {doc?.audit_flags.map((flag, i) => (
-                                    <div key={i}>🚩 {flag}</div>
-                                ))}
-                            </div>
+            <div style={{ overflowX: 'auto', background: 'white', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+                    
+                    {/* Table Header */}
+                    <thead>
+                        <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #e9ecef', textAlign: 'left' }}>
+                            <th style={{ padding: '15px', color: '#6c757d' }}>Date</th>
+                            <th style={{ padding: '15px', color: '#6c757d' }}>Vendor</th>
+                            <th style={{ padding: '15px', color: '#6c757d' }}>Category</th>
+                            <th style={{ padding: '15px', color: '#6c757d', textAlign: 'right' }}>Amount</th>
+                            <th style={{ padding: '15px', color: '#6c757d' }}>Audit Status</th>
+                            <th style={{ padding: '15px', color: '#6c757d', textAlign: 'center' }}>Actions</th>
+                        </tr>
+                    </thead>
 
-                        ) : (
-                            /* If NO: Show Green Clean */
-                            <span style={{ color: 'green' }}>✅ Clean</span>
-                        )}
-                    </td>
-                    <p>Vendor: {doc.extracted_vendor}</p>
-                    <p>Amount: {doc.extracted_amount}</p>
-                    {/* Cloudinary URL for the "View" button */}
-                    <td>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            {/* Button 1: The Instant Preview (Safe) */}
-                            <a 
-                                href={getPreviewUrl(doc.file_url)} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                style={{ textDecoration: 'none' }}
-                            >
-                                👁️ View
-                            </a>
-                            {/* Add this button in your Action column */}
-                            <button 
-                                onClick={() => handleEditClick(doc)}
-                                style={{ marginLeft: '10px', cursor: 'pointer' }}
-                            >
-                                ✏️ Edit
-                            </button>
+                    {/* Table Body */}
+                    <tbody>
+                        {docs.map((doc, index) => (
+                            <tr key={doc.id} style={{ borderBottom: '1px solid #eee' }}>
+                                
+                                {/* 1. Date */}
+                                <td style={{ padding: '15px' }}>
+                                    {doc.extracted_date ? doc.extracted_date.split('T')[0] : <span style={{color:'#ccc'}}>-</span>}
+                                </td>
 
-                            {/* Button 2: The Download (For the real file) */}
-                            {/* Button 2: The Action */}
-                            <button 
-                                onClick={() => handleDownload(doc.id, doc.file_url.split('/').pop())} // Pass the filename from URL
-                                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline', border: 'none', background: 'none' }}
-                            >
-                                ⬇️ Save
-                            </button>
-                        </div>
-                    </td>
-                    {/* --- EDIT MODAL --- */}
-                    {editingDoc && (
-                        <div style={{
-                            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                            background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center'
-                        }}>
-                            <div style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '300px' }}>
-                                <h3>📝 Edit Receipt</h3>
-                                <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    
-                                    <label>Vendor:</label>
-                                    <input 
-                                        value={formData.vendor} 
-                                        onChange={(e) => setFormData({...formData, vendor: e.target.value})} 
-                                    />
+                                {/* 2. Vendor (Bold) */}
+                                <td style={{ padding: '15px', fontWeight: '500' }}>
+                                    {doc.extracted_vendor || <span style={{color:'red'}}>Unknown</span>}
+                                </td>
 
-                                    <label>Amount:</label>
-                                    <input 
-                                        type="number" 
-                                        step="0.01"
-                                        value={formData.amount} 
-                                        onChange={(e) => setFormData({...formData, amount: e.target.value})} 
-                                    />
+                                {/* 3. Category (Badge style) */}
+                                <td style={{ padding: '15px' }}>
+                                    <span style={{ 
+                                        background: '#e3f2fd', color: '#1565c0', 
+                                        padding: '4px 8px', borderRadius: '12px', fontSize: '0.85rem' 
+                                    }}>
+                                        {doc.category || 'Uncategorized'}
+                                    </span>
+                                </td>
 
-                                    <label>Date:</label>
-                                    <input 
-                                        type="date"
-                                        value={formData.date} 
-                                        onChange={(e) => setFormData({...formData, date: e.target.value})} 
-                                    />
+                                {/* 4. Amount (Right Aligned + Currency) */}
+                                <td style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>
+                                    ₹{parseFloat(doc.extracted_amount || 0).toLocaleString('en-IN')}
+                                </td>
 
-                                    <label>Category:</label>
-                                    <select 
-                                        value={formData.category} 
-                                        onChange={(e) => setFormData({...formData, category: e.target.value})}
+                                {/* 5. Audit Flags (The Logic we just built) */}
+                                <td style={{ padding: '15px' }}>
+                                    {doc.audit_flags && doc.audit_flags.length > 0 ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                            {doc.audit_flags.map((flag, i) => (
+                                                <span key={i} style={{ 
+                                                    color: '#d32f2f', background: '#ffebee', 
+                                                    padding: '2px 6px', borderRadius: '4px', fontSize: '0.8rem', width: 'fit-content'
+                                                }}>
+                                                    🚩 {flag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <span style={{ color: '#2e7d32', background: '#e8f5e9', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
+                                            ✅ Clean
+                                        </span>
+                                    )}
+                                </td>
+
+                                {/* 6. Actions (Icons/Buttons) */}
+                                <td style={{ padding: '15px', textAlign: 'center' }}>
+                                    <button 
+                                        onClick={() => window.open(doc.file_url.replace('.pdf', '.jpg'), '_blank')} 
+                                        style={{ marginRight: '10px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+                                        title="View Receipt"
                                     >
-                                       <option value="RENT_RECEIPT">Rent Receipt</option>
-                                        <option value="MEDICAL_BILL">Medical Bill</option>
-                                        <option value="DONATION_RECEIPT">Donation (80G)</option>
-                                    </select>
+                                        👁️
+                                    </button>
+                                    
+                                    <button 
+                                        onClick={() => handleEditClick(doc)} 
+                                        style={{ marginRight: '10px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+                                        title="Edit Data"
+                                    >
+                                        ✏️
+                                    </button>
+                                    
+                                    <button 
+                                        onClick={() => handleDownload(doc.id, `receipt_${doc.id}`)} 
+                                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+                                        title="Download File"
+                                    >
+                                        ⬇️
+                                    </button>
+                                    <button 
+                                        onClick={() => deleteDocument(doc.id)} 
+                                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+                                        title="Delete File"
+                                    >
+                                        🗑️
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
 
-                                    <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                                        <button type="button" onClick={() => setEditingDoc(null)}>Cancel</button>
-                                        <button type="submit" style={{ background: 'blue', color: 'white' }}>Save Changes</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            ))}
+                {/* Empty State Message */}
+                {docs.length === 0 && (
+                    <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>
+                        No receipts found. Upload one to get started! 🚀
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

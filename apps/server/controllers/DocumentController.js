@@ -175,4 +175,28 @@ const editDocument = async (req, res) => {
     }
 }
 
-module.exports = { uploadDocument, getMyDocuments, downloadDocument, editDocument };
+// Delete a document
+const deleteDocument = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        // Execute Delete Query
+        // We use 'RETURNING id' to confirm something was actually deleted
+        const result = await db.query(
+            "DELETE FROM documents WHERE id = $1 AND user_id = $2 RETURNING id", 
+            [id, userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ msg: "Document not found or unauthorized" });
+        }
+
+        res.json({ msg: "Document deleted successfully" });
+    } catch (err) {
+        console.error("❌ Delete Error:", err.message);
+        res.status(500).send("Server Error");
+    }
+};
+
+module.exports = { uploadDocument, getMyDocuments, downloadDocument, editDocument, deleteDocument };

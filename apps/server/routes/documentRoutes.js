@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { storage } = require('../config/cloudinary');
-const { uploadDocument, getMyDocuments, downloadDocument, editDocument} = require('../controllers/DocumentController');
+const { uploadDocument, getMyDocuments, downloadDocument, editDocument, deleteDocument} = require('../controllers/DocumentController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 const upload = multer({ storage });
@@ -14,5 +14,7 @@ router.get('/', authMiddleware, getMyDocuments);
 router.get('/:id/download', authMiddleware, downloadDocument);
 
 router.put('/:id', authMiddleware, editDocument);
+
+router.delete('/:id', authMiddleware, deleteDocument);
 
 module.exports = router;

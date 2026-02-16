@@ -1,5 +1,6 @@
 const db = require('../db');
-const { analyzeDocument } = require('../services/aiservice'); // 👈 Import this!
+const { analyzeDocument } = require('../services/aiservice'); 
+const { auditRules } = require('../services/ruleEngine');
 const axios = require('axios'); // We need this to fetch the file from Cloudinary
 const uploadDocument = async (req, res) => {
     try {
@@ -26,6 +27,12 @@ const uploadDocument = async (req, res) => {
 
         if (aiData) {
             // 3. Update Database with AI Findings
+            const flags = auditRules({
+                extracted_amount: aiData.amount,
+                extracted_date: aiData.date,
+                extracted_vendor: aiData.vendor
+            });
+            //flags received now update it
             const updateQuery = `
                 UPDATE documents 
                 SET extracted_amount = $1, 
@@ -34,8 +41,9 @@ const uploadDocument = async (req, res) => {
                     category = $4,
                     confidence_score = $5,
                     audit_notes = $6,
+                    audit_flags = $7,
                     status = 'ANALYZED'
-                WHERE id = $7 RETURNING *;
+                WHERE id = $8 RETURNING *;
             `;
             
             const updatedDoc = await db.query(updateQuery, [
@@ -45,6 +53,7 @@ const uploadDocument = async (req, res) => {
                 aiData.category,
                 aiData.confidence_score, 
                 aiData.audit_notes,
+                flags,
                 docId
             ]);
 
@@ -141,17 +150,23 @@ const editDocument = async (req, res) => {
         const {id} = req.params;
         const {vendor, amount,date, category} = req.body;
         const userId = req.user.id;
+        const flags = auditRules({
+            extracted_amount: amount,
+            extracted_date: date,
+            extracted_vendor: vendor
+        });
         const query = `
             UPDATE documents 
             SET extracted_vendor = $1, 
                 extracted_amount = $2, 
                 extracted_date = $3, 
                 category = $4,
+                audit_flags = $5,
                 status = 'VERIFIED'
-            WHERE id = $5 AND user_id = $6
+            WHERE id = $6 AND user_id = $7
             RETURNING *;
         `;
-        const result = await db.query(query, [vendor, amount, date, category, id, userId]);
+        const result = await db.query(query, [vendor, amount, date, category, flags, id, userId]);
         if(result.rows.length === 0) return res.status(404).json({msg: "Document not found or unauthorized"});
         res.json(result.rows[0]);
     }catch(err){

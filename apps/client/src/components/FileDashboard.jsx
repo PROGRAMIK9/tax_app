@@ -87,6 +87,23 @@ const FiledDashboard = () => {
             {/* We take the 'docs' array and convert each item into a Table Row <tr> */}
             {docs?.map((doc) => (
                 <div key={doc.id} className="doc-card">
+                    <th>Audit Flags</th>
+                        <td>
+                        {/* CHECK: Does the array exist AND have items? */}
+                        {doc?.audit_flags && doc?.audit_flags.length > 0 ? (
+                            
+                            /* If YES: Loop through them and show red text */
+                            <div style={{ color: '#d32f2f' }}>
+                                {doc?.audit_flags.map((flag, i) => (
+                                    <div key={i}>🚩 {flag}</div>
+                                ))}
+                            </div>
+
+                        ) : (
+                            /* If NO: Show Green Clean */
+                            <span style={{ color: 'green' }}>✅ Clean</span>
+                        )}
+                    </td>
                     <p>Vendor: {doc.extracted_vendor}</p>
                     <p>Amount: {doc.extracted_amount}</p>
                     {/* Cloudinary URL for the "View" button */}

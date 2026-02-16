@@ -136,4 +136,28 @@ const downloadDocument = async (req, res) => {
     }
 };
 
-module.exports = { uploadDocument, getMyDocuments, downloadDocument };
+const editDocument = async (req, res) => {
+    try{
+        const {id} = req.params;
+        const {vendor, amount,date, category} = req.body;
+        const userId = req.user.id;
+        const query = `
+            UPDATE documents 
+            SET extracted_vendor = $1, 
+                extracted_amount = $2, 
+                extracted_date = $3, 
+                category = $4,
+                status = 'VERIFIED'
+            WHERE id = $5 AND user_id = $6
+            RETURNING *;
+        `;
+        const result = await db.query(query, [vendor, amount, date, category, id, userId]);
+        if(result.rows.length === 0) return res.status(404).json({msg: "Document not found or unauthorized"});
+        res.json(result.rows[0]);
+    }catch(err){
+        console.error("❌ Edit Error:", err.message);
+        res.status(500).json({ msg: "Server Error editing document" });
+    }
+}
+
+module.exports = { uploadDocument, getMyDocuments, downloadDocument, editDocument };

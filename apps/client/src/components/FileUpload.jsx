@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import api from '../api/axios';
 
-const FileUpload = () =>{
+const FileUpload = ({onUploadSuccess}) =>{
     const [file, setFile] = useState(null);
     const [type, setType] = useState('RENT_RECEIPT');
     const [message, setMessage] = useState('');
@@ -27,6 +27,9 @@ const FileUpload = () =>{
                 }
             });
             setMessage('File uploaded successfully!');
+            if (onUploadSuccess) {
+                onUploadSuccess(response.data.doc); // Send the new document object back
+            }
             console.log(response.data);
         }catch(err){
             setMessage('Upload failed. Please try again.');

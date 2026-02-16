@@ -1,10 +1,12 @@
 import {useState, useEffect} from 'react';
 import api from '../api/axios';
+import FileUpload from './FileUpload';
 const FiledDashboard = () => {
     const [docs, setDocs] = useState(null);
     // Add these inside your Dashboard component (near the other useState)
     const [editingDoc, setEditingDoc] = useState(null); // The doc currently being edited
-    const [formData, setFormData] = useState({}); // The form data
+    const [formData, setFormData] = useState({}); // The form 
+    const [showUpload, setShowUpload] = useState(false); // M
     useEffect(() => {
         // 3. The Async Function ⏳
         // We can't make the useEffect itself async, so we define a helper inside.
@@ -92,11 +94,26 @@ const FiledDashboard = () => {
             alert("Failed to delete document. " + err.message);
         }
     }
+
+    const handleUploadSuccess = (newDoc) => {
+        console.log("New Doc received:", newDoc); // Add this debug line
+    setDocs([newDoc, ...docs]); 
+    setShowUpload(false);
+    };
    
     return (
         <div>
-            <h2>My Documents</h2>
-            <a href ="/">Back to dashboard</a>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'30px'}}>
+                <h2>📂 My Documents</h2>
+                <button 
+                    onClick={() => setShowUpload(true)} 
+                    style={{padding: '10px 20px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold'}}
+                >
+                    + Upload New
+                </button>
+                <a href ="/">Back to dashboard</a>
+            </div>
+            
             {/* 5. The Map Loop 🗺️ */}
             {/* We take the 'docs' array and convert each item into a Table Row <tr> */}
             <div style={{ overflowX: 'auto', background: 'white', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
@@ -116,17 +133,17 @@ const FiledDashboard = () => {
 
                     {/* Table Body */}
                     <tbody>
-                        {docs.map((doc, index) => (
-                            <tr key={doc.id} style={{ borderBottom: '1px solid #eee' }}>
+                        {docs?.map((doc, index) => (
+                            <tr key={doc?.id} style={{ borderBottom: '1px solid #eee' }}>
                                 
                                 {/* 1. Date */}
                                 <td style={{ padding: '15px' }}>
-                                    {doc.extracted_date ? doc.extracted_date.split('T')[0] : <span style={{color:'#ccc'}}>-</span>}
+                                    {doc?.extracted_date ? doc?.extracted_date.split('T')[0] : <span style={{color:'#ccc'}}>-</span>}
                                 </td>
 
                                 {/* 2. Vendor (Bold) */}
                                 <td style={{ padding: '15px', fontWeight: '500' }}>
-                                    {doc.extracted_vendor || <span style={{color:'red'}}>Unknown</span>}
+                                    {doc?.extracted_vendor || <span style={{color:'red'}}>Unknown</span>}
                                 </td>
 
                                 {/* 3. Category (Badge style) */}
@@ -135,20 +152,20 @@ const FiledDashboard = () => {
                                         background: '#e3f2fd', color: '#1565c0', 
                                         padding: '4px 8px', borderRadius: '12px', fontSize: '0.85rem' 
                                     }}>
-                                        {doc.category || 'Uncategorized'}
+                                        {doc?.category || 'Uncategorized'}
                                     </span>
                                 </td>
 
                                 {/* 4. Amount (Right Aligned + Currency) */}
                                 <td style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>
-                                    ₹{parseFloat(doc.extracted_amount || 0).toLocaleString('en-IN')}
+                                    ₹{parseFloat(doc?.extracted_amount || 0).toLocaleString('en-IN')}
                                 </td>
 
                                 {/* 5. Audit Flags (The Logic we just built) */}
                                 <td style={{ padding: '15px' }}>
-                                    {doc.audit_flags && doc.audit_flags.length > 0 ? (
+                                    {doc?.audit_flags && doc?.audit_flags.length > 0 ? (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                            {doc.audit_flags.map((flag, i) => (
+                                            {doc?.audit_flags.map((flag, i) => (
                                                 <span key={i} style={{ 
                                                     color: '#d32f2f', background: '#ffebee', 
                                                     padding: '2px 6px', borderRadius: '4px', fontSize: '0.8rem', width: 'fit-content'
@@ -203,12 +220,25 @@ const FiledDashboard = () => {
                 </table>
 
                 {/* Empty State Message */}
-                {docs.length === 0 && (
+                {docs?.length === 0 && (
                     <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>
                         No receipts found. Upload one to get started! 🚀
                     </div>
                 )}
             </div>
+            {showUpload && (
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+                    <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '400px', overflow: 'hidden' }}>
+                        <div style={{ padding: '15px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', background: '#f9fafb' }}>
+                            <h3 style={{margin:0}}>Upload</h3>
+                            <button onClick={() => setShowUpload(false)} style={{border:'none', background:'none', cursor:'pointer', fontSize:'1.2rem'}}>×</button>
+                        </div>
+                        <div style={{padding: '20px'}}>
+                            <FileUpload onUploadSuccess={handleUploadSuccess} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

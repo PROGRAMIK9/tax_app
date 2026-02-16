@@ -27,8 +27,8 @@ exports.register = async (req, res) => {
             'INSERT INTO users (email, password_hash, full_name, role) VALUES ($1, $2, $3, $4) RETURNING id, email, full_name, role',
             [email, hashedPassword, full_name, role || 'user']
         );
-        console.log("LOGIN DEBUG: User found in DB:", user); 
-        console.log("LOGIN DEBUG: ID being put into Token:", user.id);
+        console.log("LOGIN DEBUG: User found in DB:", newUser); 
+        console.log("LOGIN DEBUG: ID being put into Token:", newUser.rows[0].id);
         // 5. Success Response
         res.status(201).json({ 
             message: "User Registered Successfully!", 

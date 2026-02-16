@@ -57,11 +57,17 @@ const uploadDocument = async (req, res) => {
                 docId
             ]);
 
-            return res.json({ msg: "Upload & Audit Complete", document: updatedDoc.rows[0] });
+            res.json({ 
+                msg: "Upload and Audit successful", 
+                doc: updatedDoc.rows[0] // <--- This MUST be here
+            });
         }
 
         // If AI failed, just return the original upload
-        res.json({ msg: "Upload Successful (AI Pending)", document: newDoc.rows[0] });
+        res.json({ 
+            msg: "Upload successful AI not complete", 
+            doc: newDoc.rows[0] // <--- This MUST be here
+        });
 
     } catch (err) {
         console.error("❌ Upload Error:", err.message);

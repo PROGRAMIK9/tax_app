@@ -6,6 +6,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import FileUpload from './components/FileUpload';
 import FileDashboard from './components/FileDashboard';
+import Calculator from './components/Calculator';
+import History from './components/History';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/register" element={<Register />} />
         <Route path="/upload" element={<FileUpload />} />
+        <Route path="/calculator" element={<Calculator />} />
+        <Route path="/history" element={<History />} />
         <Route path="/files" element={<FileDashboard />} />
       </Routes>
     </Router>

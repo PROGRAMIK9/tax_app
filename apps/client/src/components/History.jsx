@@ -38,8 +38,8 @@ const History = () => {
                                 <tr key={row.id} style={{ borderBottom: '1px solid #eee' }}>
                                     <td style={tdStyle}>{new Date(row.created_at).toLocaleDateString()}</td>
                                     <td style={tdStyle}>₹{Number(row.annualincome).toLocaleString()}</td>
-                                    <td style={tdStyle}>₹{Number(row.old_regime_tax).toLocaleString()}</td>
-                                    <td style={tdStyle}>₹{Number(row.new_regime_tax).toLocaleString()}</td>
+                                    <td style={tdStyle}>₹{Number(row?.calculated_old_tax).toLocaleString()}</td>
+                                    <td style={tdStyle}>₹{Number(row?.calculated_new_tax).toLocaleString()}</td>
                                     <td style={tdStyle}>
                                         <span style={{
                                             background: row.recommendation === 'Old Regime' ? '#e0f2fe' : '#dcfce7',

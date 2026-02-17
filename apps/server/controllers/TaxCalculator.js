@@ -80,10 +80,11 @@ exports.calculateTax = async(req,res) => {
         // We save the one that is LOWER (Better for the user)
         const finalTax = Math.min(oldTax, newTax);
         const savings = Math.abs(oldTax - newTax);
+        const recommendation = oldTax < newTax ? "Old Regime" : "New Regime";
         const newRecord = await db.query(
-            `INSERT INTO transactions (user_id, financial_year, annualIncome, investments_80c, rent_paid, calculated_old_tax, calculated_new_tax, final_tax, savings) 
-             VALUES ($1, '2025-2026', $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-            [req.user.id, income, inv80c, rent, oldTax, newTax, finalTax,savings]
+            `INSERT INTO transactions (user_id, financial_year, annualIncome, investments_80c, rent_paid, calculated_old_tax, calculated_new_tax, final_tax, savings, recommendation) 
+             VALUES ($1, '2025-2026', $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+            [req.user.id, income, inv80c, rent, oldTax, newTax, finalTax,savings, recommendation]
         );
         // --- 5. SEND RESULT ---
         res.json({
@@ -96,7 +97,7 @@ exports.calculateTax = async(req,res) => {
                 taxableIncome: taxableIncomeNew,
                 tax: newTax
             },
-            recommendation: oldTax < newTax ? "Old Regime" : "New Regime",
+            recommendation,
             savedRecord: newRecord.rows[0]
         });
 

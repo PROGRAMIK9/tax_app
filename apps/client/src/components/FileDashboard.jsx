@@ -3,25 +3,30 @@ import api from '../api/axios';
 import FileUpload from './FileUpload';
 const FiledDashboard = () => {
     const [docs, setDocs] = useState(null);
-    // Add these inside your Dashboard component (near the other useState)
-    const [editingDoc, setEditingDoc] = useState(null); // The doc currently being edited
-    const [formData, setFormData] = useState({}); // The form 
-    const [showUpload, setShowUpload] = useState(false); // M
+    const [editingDoc, setEditingDoc] = useState(null);
+    const [formData, setFormData] = useState({});  
+    const [showUpload, setShowUpload] = useState(false); 
+    const [search, setSearch] = useState("");
+    const [categoryFilter, setCategoryFilter] = useState("");
     useEffect(() => {
-        // 3. The Async Function ⏳
-        // We can't make the useEffect itself async, so we define a helper inside.
         const fetchDocs = async () => {
             try {
-                const res = await api.get('/documents'); 
+                const queryParams = new URLSearchParams({
+                    search: search,
+                    category: categoryFilter
+                }).toString();
+                const res = await api.get(`/documents?${queryParams? queryParams : ''}`); 
                 console.log(res.data);// The request
                 setDocs(res.data); // Save the data
+                const timeout = setTimeout(() => {}, 500);
+                return () => clearTimeout(timeout);
             } catch (err) {
                 console.error("Failed to load docs");
             }
         };
 
         fetchDocs(); // Call it immediately
-    }, []); // 4. The Dependency Array [] (Empty means "Run only once on mount")
+    }, [search,categoryFilter]); // 4. The Dependency Array [] (Empty means "Run only once on mount")
     // Helper: Turn any PDF link into a Viewable Image link
     const getPreviewUrl = (url) => {
         if (!url) return '';
@@ -127,12 +132,54 @@ const FiledDashboard = () => {
                 >
                     + Upload New
                 </button>
+                <div onClick={handleExport} 
+                >
+                    <div style={{fontSize: '1.5 rem'}}>
+                        📉
+                        <strong>Export CSV</strong>
+                    </div>
+                </div>
                 <a href ="/">Back to dashboard</a>
             </div>
             
-            {/* 5. The Map Loop 🗺️ */}
-            {/* We take the 'docs' array and convert each item into a Table Row <tr> */}
             <div style={{ overflowX: 'auto', background: 'white', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', background: 'white', padding: '15px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                        
+                    {/* Search Box */}
+                    <div style={{ flex: 1 }}>
+                        <input 
+                            type="text" 
+                            placeholder="🔍 Search Vendor (e.g. Starbucks)..." 
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem' }}
+                        />
+                    </div>
+
+                    {/* Category Dropdown */}
+                    <select 
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        style={{ padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', background: 'white', minWidth: '150px' }}
+                    >
+                        <option value="">All Categories</option>
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Medical">Medical (80D)</option>
+                        <option value="Investments">Investments (80C)</option>
+                        <option value="Utilities">Utilities</option>
+                    </select>
+
+                    {/* Reset Button (Optional) */}
+                    {(search || categoryFilter !== 'All') && (
+                        <button 
+                            onClick={() => { setSearch(""); setCategoryFilter(""); }}
+                            style={{ padding: '10px 20px', background: '#f3f4f6', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#555' }}
+                        >
+                            ✖ Clear
+                        </button>
+                    )}
+                </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                     
                     {/* Table Header */}
@@ -241,12 +288,6 @@ const FiledDashboard = () => {
                         No receipts found. Upload one to get started! 🚀
                     </div>
                 )}
-                <div onClick={handleExport} 
-                >
-                    <div style={{fontSize: '2rem'}}>📉</div>
-                    <strong>Export CSV</strong>
-                    <small>Download Excel</small>
-                </div>
             </div>
             {showUpload && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>

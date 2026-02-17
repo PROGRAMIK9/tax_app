@@ -78,10 +78,29 @@ const uploadDocument = async (req, res) => {
 const getMyDocuments = async (req, res) => {
     try {
         const userId = req.user.id;
-        const result = await db.query(
-            'SELECT * FROM documents WHERE user_id = $1 ORDER BY uploaded_at DESC', 
-            [userId]
-        );
+        const {search, category, start, end}= req.query;
+
+        let query='SELECT * FROM documents WHERE user_id = $1';
+        let paramsCount = 1;
+        let params = [userId];
+        if(search){
+            paramsCount++;
+            query += " AND lower(extracted_vendor) LIKE $"+paramsCount;
+            params.push(`%${search.toLowerCase()}%`);
+        }
+        if(category){
+            paramsCount++;
+            query+= ' AND category = $'+paramsCount;
+            params.push(category);
+        }
+        if(start && end){
+            paramsCount++;
+            query+= ` AND extracted_date BETWEEN $${paramsCount-1} AND $${paramsCount}`;
+            params.push(start, end);
+        }
+        query+=" ORDER BY extracted_date DESC";
+        console.log("📋 Fetching documents with query:", query, "and params:", params);
+        const result = await db.query(query, params);
         res.json(result.rows);
         console.log(`📂 Fetched ${result.rows.length} documents for user ${userId}`);
     } catch (err) {

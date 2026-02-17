@@ -100,6 +100,22 @@ const FiledDashboard = () => {
     setDocs([newDoc, ...docs]); 
     setShowUpload(false);
     };
+
+    const handleExport = async () => {
+        try{
+            const result = await api.get('/documents/export', { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([result.data]));
+            const link = document.createElement('a');
+            link.href=url;
+            link.setAttribute('download', `open_audit_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }catch(err){
+            console.log("Export Failed:", err.message);
+            alert("Failed to export documents. " + err.message);
+        }
+    }
    
     return (
         <div>
@@ -225,6 +241,12 @@ const FiledDashboard = () => {
                         No receipts found. Upload one to get started! 🚀
                     </div>
                 )}
+                <div onClick={handleExport} 
+                >
+                    <div style={{fontSize: '2rem'}}>📉</div>
+                    <strong>Export CSV</strong>
+                    <small>Download Excel</small>
+                </div>
             </div>
             {showUpload && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>

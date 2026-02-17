@@ -205,4 +205,36 @@ const deleteDocument = async (req, res) => {
     }
 };
 
-module.exports = { uploadDocument, getMyDocuments, downloadDocument, editDocument, deleteDocument };
+const exportDocument = async(req, res) => {
+    try{
+        const userId = req.user.id;
+        const result = await db.query("SELECT * FROM documents WHERE user_id = $1", [userId]);
+        const docs = result.rows;
+        const exportHeaders =  ["Vendor", "Amount", "Date", "Category", "AI Confidence", "Audit Flags", "Audit Notes"];
+        const csvRows=[
+            exportHeaders.join(","),
+            ...docs.map(doc =>{
+                const vendor = doc.extracted_vendor? `"${doc.extracted_vendor.replace(/"/g, '""')}"` : '';
+                const flags = doc.audit_flags? `"${doc.audit_flags.join("; ")}"`:''
+                const date = doc.extracted_date ? new Date(doc.extracted_date).toISOString().split('T')[0] : "";
+                return[
+                    vendor,
+                    doc.extracted_amount || 0,
+                    date,
+                    doc.category || 'Uncategorized',
+                    doc.confidence_score || '',
+                    flags,
+                    doc.audit_notes ? `"${doc.audit_notes.replace(/"/g, '""')}"` : ''
+                ].join(",");
+        })]
+        const csvData = csvRows.join("\n");
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader("Content-Disposition", 'attachment; filename="open_audit.csv"');
+        res.status(200).send(csvData);
+    }catch(err){
+        console.error("❌ Export Error:", err.message);
+        res.status(500).send("Server Error during export");
+    }
+}
+
+module.exports = { uploadDocument, getMyDocuments, downloadDocument, editDocument, deleteDocument, exportDocument };

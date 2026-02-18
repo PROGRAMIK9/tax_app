@@ -124,7 +124,7 @@ const FiledDashboard = () => {
    
     return (
         <div>
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'30px'}}>
+            <div className = "page-header">
                 <h2>📂 My Documents</h2>
                 <button 
                     onClick={() => setShowUpload(true)} 
@@ -160,7 +160,7 @@ const FiledDashboard = () => {
                     <select 
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        style={{ padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', background: 'white', minWidth: '150px' }}
+                        style={{ marginLeft:'10px',  padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem', background: 'white', minWidth: '150px' }}
                     >
                         <option value="">All Categories</option>
                         <option value="Food">Food</option>
@@ -180,7 +180,7 @@ const FiledDashboard = () => {
                         </button>
                     )}
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+                <table className="table-wrapper">
                     
                     {/* Table Header */}
                     <thead>
@@ -299,6 +299,75 @@ const FiledDashboard = () => {
                         <div style={{padding: '20px'}}>
                             <FileUpload onUploadSuccess={handleUploadSuccess} />
                         </div>
+                    </div>
+                </div>
+            )}
+            {editingDoc && (
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+                    <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '400px', overflow: 'hidden' }}>
+                        
+                        {/* Header */}
+                        <div style={{ padding: '15px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', background: '#f9fafb' }}>
+                            <h3 style={{margin:0}}>✏️ Edit Document</h3>
+                            <button onClick={() => setEditingDoc(null)} style={{border:'none', background:'none', cursor:'pointer', fontSize:'1.2rem'}}>×</button>
+                        </div>
+                        
+                        {/* The Form */}
+                        <form onSubmit={handleSave} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            
+                            <div>
+                                <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#666'}}>Vendor Name</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.vendor} 
+                                    onChange={(e) => setFormData({...formData, vendor: e.target.value})}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#666'}}>Date</label>
+                                <input 
+                                    type="date" 
+                                    value={formData.date} 
+                                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#666'}}>Category</label>
+                                <select 
+                                    value={formData.category} 
+                                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', background: 'white' }}
+                                >
+                                    <option value="">Uncategorized</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Medical">Medical (80D)</option>
+                                    <option value="Investments">Investments (80C)</option>
+                                    <option value="Utilities">Utilities</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#666'}}>Amount (₹)</label>
+                                <input 
+                                    type="number" 
+                                    value={formData.amount} 
+                                    onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                />
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                style={{ marginTop: '10px', padding: '12px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+                            >
+                                💾 Save Changes
+                            </button>
+                        </form>
                     </div>
                 </div>
             )}

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const StatsCard =({docs})=>{
     const totalSpend = docs.reduce((acc, doc) => acc + (parseFloat(doc.extracted_amount) || 0), 0);
     
@@ -16,18 +14,18 @@ const StatsCard =({docs})=>{
     };
 
     return (
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
-            <div style={cardStyle}>
+        <div className = "stats-grid">
+            <div className = "stat-card">
                 <h3 style={{ margin: 0, color: '#666' }}>💰 Total Spend</h3>
                 <h1 style={{ margin: '10px 0', color: '#333' }}>₹{totalSpend.toLocaleString()}</h1>
             </div>
             
-            <div style={cardStyle}>
+            <div className = "stat-card">
                 <h3 style={{ margin: 0, color: '#666' }}>🛡️ Tax Deductible</h3>
                 <h1 style={{ margin: '10px 0', color: 'green' }}>₹{totalTaxSavings.toLocaleString()}</h1>
             </div>
 
-            <div style={cardStyle}>
+            <div className = "stat-card">
                 <h3 style={{ margin: 0, color: '#666' }}>🚩 Audit Flags</h3>
                 <h1 style={{ margin: '10px 0', color: 'red' }}>{flaggedCount}</h1>
             </div>

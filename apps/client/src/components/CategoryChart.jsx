@@ -32,17 +32,19 @@ const CategoryChart = ({ docs }) => {
             },
         ],
     };
-
+    const isMobile = window.innerWidth <768;
     // 3. THE FIX: Options to control layout 🛠️
     const options = {
         responsive: true,
-        maintainAspectRatio: false, // <--- This prevents the giant overflow!
+        maintainAspectRatio: false, 
         plugins: {
             legend: {
-                position: 'right', // Moves legend to side (looks better on wide screens)
+                // IF Mobile -> Bottom. IF Desktop -> Right.
+                position: isMobile ? 'bottom' : 'right', 
                 labels: {
                     usePointStyle: true,
-                    boxWidth: 10
+                    boxWidth: 10,
+                    padding: 20 // Give it some breathing room
                 }
             }
         },

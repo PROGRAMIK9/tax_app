@@ -32,3 +32,170 @@ button:active {
   background: #cbd5e1;
   border-radius: 4px;
 }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Desktop: Chart (Big) | Actions (Small) */
+  gap: 30px;
+  margin-top: 30px;
+}
+
+/* 1. The Container */
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative; /* Needed for the mobile dropdown to stick */
+}
+
+/* 2. The Links Wrapper (Desktop View) */
+.nav-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+/* 3. The "MENU" Button (Hidden on Desktop) */
+.menu-btn {
+    display: none; /* <--- Hide by default on PC */
+    background: none;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px; /* Space between cards */
+  margin-bottom: 30px;
+
+}
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Fix for Chart Container */
+.chart-container {
+    height: 300px;
+    width: 100%;
+    position: relative;
+    /* This stops the chart from growing infinitely */
+    min-height: 300px; 
+}
+
+/* --- UNIVERSAL PAGE STYLES --- */
+
+/* 1. Generic 2-Column Grid (For Calculator & Dashboard) */
+.responsive-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Split 50/50 */
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* 2. Responsive Table Wrapper (For History & Files) */
+.table-wrapper {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 100%;
+    overflow-x: auto; /* <--- KEY: Makes table scroll sideways on phone */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* Force table to be wide (so it scrolls) */
+}
+
+/* 3. Header Stack (Title + Button) */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 20px;
+
+}
+
+/* --- MOBILE ONLY (Max Width 768px) --- */
+@media (max-width: 768px) {
+    
+    .navbar-container {
+        padding: 15px 20px; /* Smaller padding on phone */
+    }
+
+    /* Show the Menu Button */
+    .menu-btn {
+        display: block;
+    }
+
+    /* Hide the Links by default */
+    .nav-links {
+        display: none; /* Hidden! */
+        
+        /* Dropdown Style */
+        position: absolute;
+        top: 100%; /* Push below navbar */
+        right: 0;
+        width: 50vw;
+        height:90vh;
+        background: white;
+        flex-direction: column; /* Stack vertically */
+        padding: 20px;
+        /* box-shadow: 0 4px 6px rgba(0,0,0,0.1); */
+        z-index: 100;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Show Links when Active */
+    .nav-links.active {
+        display: flex;
+    }
+    .stats-grid {
+      grid-template-columns: 1fr; /* Force 1 column (Stack them) */
+    }
+    .chart-container {
+      height: 250px !important; /* Force it smaller on phone */
+      margin-bottom: 20px;
+   }
+  
+  /* Ensure the canvas itself behaves */
+    canvas {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    .dashboard-grid {
+      grid-template-columns: 1fr; /* Stack Chart and Actions */
+    }
+    
+    /* Stack Grids Vertically */
+    .responsive-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Stack Headers (Title on top, Button below) */
+    .page-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    /* Make buttons full width on phone for easier clicking */
+    .page-header button {
+        width: 75%;
+    }
+}

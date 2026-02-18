@@ -13,7 +13,7 @@ const Dashboard = () => {
     const [docs, setDocs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showUpload, setShowUpload] = useState(false);
-
+    const [showMenu, setShowMenu] = useState(false);
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -42,20 +42,33 @@ const Dashboard = () => {
         setShowUpload(false);       // Close popup
     };
 
+    const handleNaviagtion = () => {
+        setShowMenu(!showMenu);
+    };
+
     if (loading) return <div style={styles.loader}>Loading...</div>;
 
     return (
         <div style={styles.page}>
             {/* NAV (Ideally move this to a shared component) */}
-            <nav style={styles.navbar}>
+            <nav className="navbar-container">
                 <div style={styles.brand}>OpenAudit 🇮🇳</div>
-                <div style={styles.navRight}>
-                    <Link to="/" style={styles.activeLink}>Home</Link>
-                    <Link to="/calculator" style={styles.link}>Calculator</Link>
-                    <Link to="/history" style={styles.link}>History</Link>
-                    <Link to="/files" style={styles.link}>Files</Link>
+                <div>
+                    {/* Mobile Toggle Button (Visible only on phone via CSS) */}
+                    <button className="menu-btn" onClick={() => setShowMenu(!showMenu)}>
+                        {showMenu ? "✖ Close" : "☰ Menu"}
+                    </button>
 
-                    <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
+                    {/* Links (Visible on PC, Toggled on Phone) */}
+                    {/* If showMenu is true, we add the 'active' class */}
+                    <div className={`nav-links ${showMenu ? "active" : ""}`}>
+                        <Link to="/" style={styles.activeLink}>Home</Link>
+                        <Link to="/calculator" style={styles.link}>Calculator</Link>
+                        <Link to="/history" style={styles.link}>History</Link>
+                        <Link to="/files" style={styles.link}>Files</Link>
+
+                        <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
+                    </div>
                 </div>
             </nav>
 
@@ -67,17 +80,19 @@ const Dashboard = () => {
                 </div>
 
                 {/* 1. STATS ROW */}
-                <StatsCards docs={docs} />
+                <div className = "stats-grid">
+                    <StatsCards docs={docs} />
+                </div>
 
                 {/* 2. MAIN GRID */}
-                <div style={styles.grid}>
+                <div className = "dashboard-grid">
 
                     {/* CHART SECTION */}
                     <div style={styles.card}>
                         <h3 style={{ marginTop: 0, marginBottom: '20px' }}>📊 Spending Breakdown</h3>
 
                         {/* Give the parent a fixed height. The chart will fill this EXACTLY. */}
-                        <div style={{ height: '300px', width: '100%', position: 'relative' }}>
+                        <div className = "chart-container" >
                             {docs.length > 0 ? (
                                 <CategoryChart docs={docs} />
                             ) : (

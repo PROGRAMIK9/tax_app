@@ -8,7 +8,7 @@ import FileUpload from './components/FileUpload';
 import FileDashboard from './components/FileDashboard';
 import Calculator from './components/Calculator';
 import History from './components/History';
-
+import StatsCard from './components/StatsCard';
 function App() {
   return (
     <Router>
@@ -23,6 +23,7 @@ function App() {
         <Route path="/calculator" element={<Calculator />} />
         <Route path="/history" element={<History />} />
         <Route path="/files" element={<FileDashboard />} />
+        <Route path="/stats" element={<StatsCard />} />
       </Routes>
     </Router>
     

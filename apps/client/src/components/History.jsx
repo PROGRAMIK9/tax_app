@@ -19,7 +19,7 @@ const History = () => {
             <h2 style={{ marginTop: '20px', marginBottom: '30px' }}>📜 Calculation History</h2>
 
             {loading ? <p>Loading...</p> : (
-                <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+                <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', overflow: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead style={{ background: '#f3f4f6' }}>
                             <tr>

@@ -44,15 +44,15 @@ const Calculator = () => {
 
             <div style={styles.container}>
                 <div style={styles.card}>
-                    <form onSubmit={handleCalculate} style={styles.formGrid}>
-                        <div style={styles.column}>
+                    <form onSubmit={handleCalculate} className = "responsive-grid">
+                        <div>
                             <h4>Basic Details</h4>
                             <InputGroup label="Annual Income (₹)" name="annualIncome" val={formData.annualIncome} onChange={handleChange} required />
                             <InputGroup label="80C Investments (PPF/LIC)" name="investments" val={formData.investments} onChange={handleChange} />
                             <InputGroup label="Rent Paid (For HRA)" name="rentPaid" val={formData.rentPaid} onChange={handleChange} />
                         </div>
 
-                        <div style={styles.column}>
+                        <div>
                              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
                                 <h4>Advanced Deductions</h4>
                                 <button type="button" onClick={() => setShowAdvanced(!showAdvanced)} style={styles.toggleBtn}>

@@ -10,7 +10,7 @@ const documentRoutes = require('./routes/documentRoutes');
 app.use(cors({
     origin: [
         "http://localhost:5173",          // Allows Local Frontend
-        "https://openaudit.vercel.app"    // Allows Cloud Frontend
+        "https://tax-app-gvvk.vercel.app"    // Allows Cloud Frontend
     ],
     credentials: true
 }));
